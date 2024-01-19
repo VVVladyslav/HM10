@@ -8,13 +8,13 @@ import java.net.URL;
 
 public class HttpStatusImageDownloader {
     public void downloadStatusImage(int code) throws IOException {
-
-        String imageUrl = "https://http.cat/" + code + ".jpg";
-        HttpURLConnection connection = (HttpURLConnection) new URL(imageUrl).openConnection();
-        connection.setRequestMethod("GET");
         HttpStatusChecker httpStatusChecker = new HttpStatusChecker();
         try {
-
+            String statusImage = httpStatusChecker.getStatusImage(code);
+            System.out.println(statusImage);
+            HttpURLConnection connection = (HttpURLConnection) new URL(statusImage).openConnection();
+            connection.setRequestMethod("GET");
+            try {
                 try (InputStream inputStream = connection.getInputStream()) {
                     String fileName = "ImageDownloaded" + code + ".jpg";
                     try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
@@ -25,9 +25,12 @@ public class HttpStatusImageDownloader {
                         }
                     }
                 }
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                throw new RuntimeException("cant load file");
+            }
+            connection.disconnect();
+        }catch (Exception e){
+            throw new RuntimeException("Not found image number [" + code + "]");
         }
-        connection.disconnect();
     }
 }
